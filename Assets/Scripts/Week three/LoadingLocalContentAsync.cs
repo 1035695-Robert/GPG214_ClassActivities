@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.Contracts;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,10 +14,12 @@ public class LoadingLocalContentAsync : MonoBehaviour
     public string imageFileName;
 
 
-    public string clip;
+    public AudioClip clip;
+    public string audioFileName;
+
+    
     public AssetBundle bundle;
-
-
+    public string assetBundleName;
 
     public string streamingAssetsFolderPath = Application.streamingAssetsPath;
 
@@ -29,6 +32,8 @@ public class LoadingLocalContentAsync : MonoBehaviour
         yield return StartCoroutine(LoadTextureFromFile());
     
         yield return StartCoroutine(LoadAudioClipFromFile());
+
+        yeild return StartCoroutine(LoadAssetBundleFromFile());
     }
 
     // Update is called once per frame
@@ -98,7 +103,7 @@ public class LoadingLocalContentAsync : MonoBehaviour
     IEnumerator LoadAudioClipFromFile()
     {
 
-        UnityWebRequest audioClipRequest = UnityWebRequest.Get(webAddress);
+        UnityWebRequest audioClipRequest = UnityWebRequestMultimedia.GetAudioClip(Path.Combine(streamingAssetsFolderPath, audioFileName), AudioType.WAV);
 
         AsyncOperation downloadOperation = audioClipRequest.SendWebRequest();
 
@@ -114,21 +119,57 @@ public class LoadingLocalContentAsync : MonoBehaviour
         }
 
     Debug.Log("download complete");
+        clip = DownloadHandlerAudioClip.GetContent(audioClipRequest);
+        //byte[] allDataDownloaded = audioClipRequest.downloadHandler.data;
 
-        byte[] allDataDownloaded = audioClipRequest.downloadHandler.data;
+        //float[] floatArray = new float[allDataDownloaded.Length / 2];
 
-        float[] floatArray = new float[allDataDownloaded.Length / 2];
+        //for(int i = 0; i < floatArray.Length; i++)
+        //{
+        //    short bitValue = System.BitConverter.ToInt16(allDataDownloaded, i * 2);
 
-        for(int i = 0; i < floatArray.Length; i++)
+        //    floatArray[i] = bitValue / 32768.0f;
+        //}
+
+        //clip = AudioClip.Create("coin", floatArray.Length, 1, 44100, false);
+        //clip.SetData(floatArray, 0);
+
+        AudioSource.PlayClipAtPoint(clip, Vector3.zero);
+
+        audioClipRequest.Dispose();
+        yield return null;
+    }
+
+    IEnumerator LoadAssetBundleFromFile()
+    {
+        UnityWebRequest assetBundleRequest = UnityWebRequest.Get(Path.Combine(streamingAssetsFolderPath, assetBundleName));
+
+        AsyncOperation downloadOperation = assetBundleRequest.SendWebRequest();
+
+        while (!downloadOperation.isDone)
         {
-            short bitValue = System.BitConverter.ToInt16(allDataDownloaded, i * 2);
-
-            floatArray[i] = bitValue / 32768.0f;
+            Debug.Log("download progress: " + ((downloadOperation.progress / 1f) * 100) + "%");
+            yield return null;
+        }
+        if (assetBundleRequest.result == UnityWebRequest.Result.ConnectionError || assetBundleRequest.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("error with downloading file");
+            yield break;
         }
 
-        //clip = AudioClip.Create("CoinClip", floatArray.Length, 1, 44100, false);
-       
-        audioClipRequest.Dispose();
+        Debug.Log("download complete");
+
+        bundle = DownloadHandlerAssetBundle.GetContent(assetBundleRequest);
+
+        //byte[] allDataDownloaded = assetBundleRequest.downloadHandler.data;
+        
+        //AssetBundleCreateRequest assetBundleCreateRequest = AssetBundle.LoadFromMemoryAsync(allDataDownloaded);
+
+        //yield return assetBundleCreateRequest;
+
+        //bundle = assetBundleCreateRequest.assetBundle;
+
+        assetBundleRequest.Dispose();
         yield return null;
     }
 }

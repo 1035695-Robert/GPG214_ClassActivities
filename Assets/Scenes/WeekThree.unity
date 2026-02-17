@@ -668,8 +668,9 @@ MonoBehaviour:
   texture: {fileID: 0}
   spriteImage: {fileID: 0}
   imageFileName: Textures/heart.jpg
-  clip: 
+  clip: {fileID: 0}
   bundle: {fileID: 0}
+  audioFileName: Audio/coin.wav
   streamingAssetsFolderPath: C:/Users/1035695/Documents/git_/GPG214_ClassActivities/Assets/StreamingAssets
 --- !u!4 &2133616783
 Transform:
