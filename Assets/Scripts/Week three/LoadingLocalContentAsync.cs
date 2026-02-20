@@ -33,7 +33,7 @@ public class LoadingLocalContentAsync : MonoBehaviour
     
         yield return StartCoroutine(LoadAudioClipFromFile());
 
-        yeild return StartCoroutine(LoadAssetBundleFromFile());
+        yield return StartCoroutine(LoadAssetBundleFromFile());
     }
 
     // Update is called once per frame

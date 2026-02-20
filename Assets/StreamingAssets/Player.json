@@ -1,8 +1,1 @@
-{
-    "player":[
-        {
-            "name": "Steve",
-            "weapon": "sword"
-        }
-    ]
-}
+{"playerName":"Steve","playerHealth":100.0,"playerWeapon":"axe","playerPositionArray":[0.0,0.0,0.0]}
